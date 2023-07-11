@@ -1218,7 +1218,7 @@ fig = rbind(miyagi %>% select(year, season, taityo, weight2, pref), fukuiba %>% 
 
 
 # step3. 青森県の体長組成 -----------------------------------------------
-# 以下の項目は引き継ぎ資料の見出に対応．ないと訳分からなくなるから残した．
+# 以下の見出しは引き継ぎ資料の見出に対応．ないと訳分からなくなるから残した．
 # (3) 八戸 ------------------------------------------------------------------
 tai_hati = read.csv(paste0(dir, "hati_sokutei.csv"), fileEncoding = fileEncoding)
 

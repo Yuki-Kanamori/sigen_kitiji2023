@@ -22,12 +22,12 @@ require(mapdata)
 require(scales)
 
 
-dir = "/Users/Yuki/Dropbox/業務/キチジ太平洋北部/SA2022/inputdata/"
+dir = "/Users/Yuki/Dropbox/業務/キチジ太平洋北部/SA2023/inputdata/"
 fileEncoding = "CP932"
 
 # not change
 knitr::opts_chunk$set(echo = TRUE)
-n_year = 2022
+n_year = 2023
 options(warn = -1)
 ```
 
@@ -66,9 +66,9 @@ ao_sum = ao %>% dplyr::group_by(method) %>% dplyr::summarize(sum_temp = sum(catc
 
 # 資源評価表の表1に合わせて「沖底，小底，刺網，延縄，定置，その他」の6つのカテゴリーに変更する
 ao_sum$method
-ao_sum$method2 = c("その他", "その他", "沖底", "小底") # ↑の情報を確認して，漁業種類を定義する
+ao_sum$method2 = c("その他", "その他", "小底", "延縄", "沖底") # ↑の情報を確認して，漁業種類を定義する
 
-# 「沖底，小底，その他」ごとの漁獲量を集計
+# 「沖底，小底，延縄，その他」ごとの漁獲量を集計
 ao_sum = ao_sum %>% select(-method) %>% dplyr::group_by(method2) %>% dplyr::summarize(sum = sum(sum_temp))
 
 
@@ -79,7 +79,7 @@ iwa_sum = iwa
 
 # 資源評価表の表1に合わせて「沖底，小底，刺網，延縄，定置，その他」の6つのカテゴリーに変更する
 iwa_sum$method
-iwa_sum$method2 = c("延縄", "沖底", "延縄") # ↑の情報を確認して，漁業種類を定義する
+iwa_sum$method2 = c("延縄", "刺網", "延縄", "沖底") # ↑の情報を確認して，漁業種類を定義する
 
 # 「沖底，小底，その他」ごとの漁獲量を集計
 iwa_sum = iwa_sum %>% select(-method) %>% dplyr::group_by(method2) %>% dplyr::summarize(sum = sum(sum_temp))
@@ -135,13 +135,19 @@ fuku_sum = fuku_sum %>% select(-method)
 iba = read.xlsx(paste0(dir, "catch_pref.xlsx"), sheet = "iba", startRow = 4)
 iba = iba[13, ] 
 
+# 2022年は小底が入ってきた！
+iba = iba[, -4]
+iba = iba %>% gather(key = method, value = sum)
+iba = iba[-1, ]
+
 # 資源評価表の表1に合わせて「沖底，小底，刺網，延縄，定置，その他」の6つのカテゴリーに変更する
-iba = iba %>% mutate(method2 = "沖底")
+iba$method
+iba = iba %>% mutate(method2 = c("沖底", "小底"))
 
-iba = iba[, 3:4]
-colnames(iba)[1] = "sum"
-iba_sum = iba
-
+# iba = iba[, 3:4]
+# colnames(iba)[1] = "sum"
+# iba_sum = iba
+iba_sum = iba %>% select(-method)
 
 
 #=== 全県のデータを統合する ===#
@@ -155,7 +161,13 @@ merge = ao_sum %>%
 
 
 colnames(merge) = c("漁業種", "青森", "岩手", "宮城", "福島", "茨城")
-merge[is.na(merge)] = 0
+merge1 = merge[, 1:5]
+merge2 = merge[, 6]
+merge1[is.na(merge1)] = 0 # 2022年は茨城データでエラー
+merge2$茨城 = c(0, 1215, 0, 273.3, 0)
+
+merge = cbind(merge1, merge2)
+
 merge = merge %>% filter(漁業種 != "沖底") # 表1と図5の沖底は沖底漁績の値を使うため，県が提出した沖底の値は抜く
 
 
@@ -191,8 +203,9 @@ catch_2yr = rbind(catch_2yr, okisoko_2yr)
 # 県からもらった昨年度の漁獲量データの沖底の値を沖底漁績の暫定値に置換
 catch_new = rbind(ao_sum, iwa_sum, miya_sum, fuku_sum, iba_sum) %>% mutate(年 = as.numeric(paste0(n_year-1)))
 
+summary(catch_new)
 # 資源評価表の図5に合わせて「沖底，小底，沖底・小底以外」の3つのカテゴリーに変更する
-catch_new = catch_new %>% mutate(method = ifelse(str_detect(catch_new$method2, pattern = "沖底"), "沖底", ifelse(str_detect(catch_new$method2, pattern = "小底"), "小底", "沖底・小底以外"))) %>% select(-method2) %>% dplyr::rename(year = 年) %>% dplyr::rename(catch_kg = sum) %>% mutate(sum = catch_kg/1000) 
+catch_new = catch_new %>% mutate(method = ifelse(str_detect(catch_new$method2, pattern = "沖底"), "沖底", ifelse(str_detect(catch_new$method2, pattern = "小底"), "小底", "沖底・小底以外"))) %>% select(-method2) %>% dplyr::rename(year = 年) %>% dplyr::rename(catch_kg = sum) %>% mutate(sum = as.numeric(catch_kg)/1000) 
 total_catch_pref = catch_new %>% filter(method != "沖底") # 図5の沖底は沖底漁績の値を使うため，県が提出した沖底の値は抜く
 total_catch_pref = total_catch_pref %>% dplyr::group_by(year, method) %>% dplyr::summarize(catch_t = sum(sum))
 
@@ -218,7 +231,7 @@ catch$method = factor(catch$method, levels = c("沖底・小底以外", "小底"
 
 #=== step2-4 ===#
 # 表1の作成
-table1 = rbind(ao_sum, iwa_sum, miya_sum, fuku_sum, iba_sum) %>% mutate(年 = as.numeric(paste0(n_year-1))) %>% dplyr::group_by(method2) %>% dplyr::summarize(catch_t = sum(sum)/1000) %>% mutate(year = as.numeric(paste0(n_year-1))) %>% dplyr::rename(method = method2)
+table1 = rbind(ao_sum, iwa_sum, miya_sum, fuku_sum, iba_sum) %>% mutate(年 = as.numeric(paste0(n_year-1))) %>% dplyr::group_by(method2) %>% dplyr::summarize(catch_t = sum(as.numeric(sum))/1000) %>% mutate(year = as.numeric(paste0(n_year-1))) %>% dplyr::rename(method = method2)
 table1_t = table1 %>% dplyr::group_by(year) %>% dplyr::summarize(catch_t = sum(catch_t)) %>% dplyr::mutate(method = "total")
 table1 = rbind(table1, table1_t)
 table1 = rbind(table1 %>% filter(method != "沖底") %>% mutate(memo = ""), okisoko_1yr %>% mutate(memo = "暫定値"), okisoko_2yr %>% mutate(memo = "確定値．表の修正が必要")) 
@@ -1078,8 +1091,18 @@ fuku2 = fuku2 %>% mutate(season = ifelse(between(month, 1, 6), "1-6", "7-12"))
 fuku_sum2 = fuku2 %>% dplyr::group_by(season) %>% dplyr::summarize(sum_kg = sum(catch_kg))
 
 ### ibaraki
+# 2022年データは小底があったためコードを修正
+# 沖底のみの年は2021年データ（2022年度資源評価）のコードに戻す
 iba2 = read.xlsx(paste0(dir, "catch_pref.xlsx"), sheet = "iba", startRow = 4)
-iba2 = iba2[-13, -2] 
+
+# 2023年度資源評価コード
+# 月と総計列のみ残したい
+iba2 = iba2[-13, -c(2, 3)] 
+
+# 2022年度資源評価コード
+# iba2 = iba2[-13, -2] 
+
+
 iba2 = iba2 %>% mutate(month = rep(1:12)) %>% mutate(season = ifelse(between(month, 1, 6), "1-6", "7-12")) 
 iba_sum2 = iba2 %>% na.omit() %>%dplyr::group_by(season) %>% dplyr::summarize(sum_kg = sum(総計))
 iba_sum2[2, 1] = "1-6"
@@ -1616,7 +1639,7 @@ w = g+p+l+lab+f+theme_bw(base_family = "HiraKakuPro-W3")+ theme(legend.position 
 
 
 ```{r figA3-1, echo=F, warning=F, message=F, results=F, include=F}
-lonlat = read.xlsx(paste0(dir, "操業記録データ2021.xlsx"))
+lonlat = read.xlsx(paste0(dir, "操業記録データ2022.xlsx"))
 lonlat = lonlat[, c(2,3,4,9:12)]
 colnames(lonlat)
 colnames(lonlat) = c("station_code", "depth", "ami", "lat1", "lat2", "lon1", "lon2")
@@ -1658,7 +1681,7 @@ th = theme(panel.grid.major = element_blank(),
 fig_a31a = g + geom_polygon(data = japan2, group = japan$group, fill= "gray50", colour= "gray50")  + coord_map(xlim = c(140.5, 143), ylim = c(36, 42)) + stat_contour(aes(z=depth),binwidth=200,colour="black")+theme_bw(base_family = "HiraKakuPro-W3")+th+geom_point(data = trawl_length3, aes(x = lon, y = lat, shape = station_code), size = 3)+scale_shape_manual(values = c(15, 4, 17, 8, 18, 16, 1, 2))+labs(title = "(A)", x = "経度", y = "緯度", shape = "調査ライン")+scale_x_continuous(breaks=seq(140.5, 143, by = 1), expand = c(0, 0.5))
 
 
-trawl_length = read.xlsx(paste0(dir, "q_魚種別体長別資源量2021.xlsx")) %>% filter(和名 == "キチジ")
+trawl_length = read.xlsx(paste0(dir, "q_魚種別体長別資源量2022.xlsx")) %>% filter(和名 == "キチジ")
 # trawl_length = read.csv("trawl_ns_length2.csv", fileEncoding = fileEncoding)
 trawl_length1 = trawl_length[, c(6,10,11,15)]
 colnames(trawl_length1)

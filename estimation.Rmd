@@ -1199,8 +1199,16 @@ total = miyagi %>% dplyr::group_by(year, season) %>% dplyr::summarize(total = su
 # fukuiba_mae = 6814.1+0　#fuku+iba
 # fukuiba_usiro = 1536.3+30 
 
-fukuiba_mae = fuku_sum2 %>% filter(season == "1-6") %>% select(sum_kg) + iba_sum2 %>% filter(season == "1-6") %>% select(sum_kg)
-fukuiba_usiro = fuku_sum2 %>% filter(season == "7-12") %>% select(sum_kg) + iba_sum2 %>% filter(season == "7-12") %>% select(sum_kg)
+
+fukuiba_mae = fuku_sum2 %>% filter(season == "1-6") %>% select(sum_kg) + iba_sum2 %>% group_by(season) %>% summarize(sum_kg = sum(sum_kg)) %>% filter(season == "1-6") %>% select(sum_kg)
+
+if(nrow(iba_sum2 %>% group_by(season) %>% summarize(sum_kg = sum(sum_kg)) %>% filter(season == "7-12") %>% select(sum_kg)) == 0){
+  fukuiba_usiro = fuku_sum2 %>% filter(season == "7-12") %>% select(sum_kg)
+}else{
+  fukuiba_usiro = fuku_sum2 %>% filter(season == "7-12") %>% select(sum_kg) + iba_sum2 %>% group_by(season) %>% summarize(sum_kg = sum(sum_kg)) %>% filter(season == "7-12") %>% select(sum_kg)
+}
+
+
 rate_fukuiba_mae = (total %>% filter(season == '1-6') %>% select(total) + fukuiba_mae)/total %>% filter(season == '1-6') %>% select(total)
 rate_fukuiba_usiro = (total %>% filter(season == '7-12') %>% select(total) + fukuiba_usiro)/total %>% filter(season == '7-12') %>% select(total)
 head(miyagi)
@@ -2065,29 +2073,29 @@ table_s1
 `r (n_year - 1)`年の資源量は`r (total_biomass_this = sum(abund_abc$biomass_est))`，F limitは`r (total_biomass_this = sum(abund_abc$biomass_est))`，F targetは`r (re_abc_target = (f_target*(1-exp(-z_abc)))/z_abc*total_biomass_this)`．  
 漁獲量とFは要約にある．  
 --->
-#### 2021（3行目）
+#### 2022（3行目）
 ```{r reABC 2 years ago}
-# 資源量 (2021)
+# 資源量 (2022)
 (total_biomass_last = sum(est %>% filter(year == (n_year-1)) %>% select(biomass)))
 
-# limit (2021)
+# limit (2022)
 (re_abc_limit_last = (f_limit*(1-exp(-z_abc)))/z_abc*total_biomass_last)
 
-# target (2021)
+# target (2022)
 (re_abc_target_last = (f_target*(1-exp(-z_abc)))/z_abc*total_biomass_last)
 
 # 漁獲量とFは要約にある
 ```
 
-#### 2022（5行目）
+#### 2023（5行目）
 ```{r reABC last year}
-# 資源量 (2022)
+# 資源量 (2023)
 (total_biomass_this = sum(abund_abc$biomass_est))
 
-# limit (2022)
+# limit (2023)
 (re_abc_limit = (f_limit*(1-exp(-z_abc)))/z_abc*total_biomass_this)
 
-# target (2022)
+# target (2023)
 (re_abc_target = (f_target*(1-exp(-z_abc)))/z_abc*total_biomass_this)
 
 ```

@@ -1525,7 +1525,7 @@ th = theme(panel.grid.major = element_blank(),
            strip.text.x = element_text(size = rel(0.8)),
            legend.position = c(0.755, 0.763),
            legend.background = element_rect(fill = "white", size = 0.4, linetype = "solid", colour = "black"))
-fig6 = g+l+p+lab+theme_bw(base_family = "HiraginoSans-W3")+th+scale_x_continuous(expand = c(0, 0.5), breaks=seq(1972, 2020, by = 5))+scale_y_continuous(expand = c(0,0),limits = c(0, 30))+scale_linetype_manual(values = c("solid", "solid", "solid"),)+ guides(linetype=FALSE, fill = FALSE)+scale_shape_manual(values = c(22, 17, 18))+scale_fill_manual(values = c('white','black','black'))+scale_size_manual(values = c(3,3,4))
+fig6 = g+l+p+lab+theme_bw(base_family = "HiraginoSans-W3")+th+scale_x_continuous(expand = c(0, 0.8), breaks=seq(1972, 2022, by = 5))+scale_y_continuous(expand = c(0,0),limits = c(0, 30))+scale_linetype_manual(values = c("solid", "solid", "solid"),)+ guides(linetype=FALSE, fill = FALSE)+scale_shape_manual(values = c(22, 17, 18))+scale_fill_manual(values = c('white','black','black'))+scale_size_manual(values = c(3,3,4))
 
 
 

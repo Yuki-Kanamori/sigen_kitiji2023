@@ -1628,7 +1628,7 @@ pre code {
 
 <h1 class="title toc-ignore">Results for document</h1>
 <h4 class="author">Yuki Kanamori</h4>
-<h4 class="date">2022/6/21</h4>
+<h4 class="date">2023/7/20</h4>
 
 </div>
 
@@ -1846,27 +1846,27 @@ max(trend$total)-(max(trend$total)-min(trend$total))*1/3</code></pre>
 漁獲量とFは要約にある．  
 --->
 <div id="行目" class="section level4">
-<h4>2021（3行目）</h4>
-<pre class="r"><code># 資源量 (2021)
+<h4>2022（3行目）</h4>
+<pre class="r"><code># 資源量 (2022)
 (total_biomass_last = sum(est %&gt;% filter(year == (n_year-1)) %&gt;% select(biomass)))</code></pre>
 <pre><code>## [1] 11954.67</code></pre>
-<pre class="r"><code># limit (2021)
+<pre class="r"><code># limit (2022)
 (re_abc_limit_last = (f_limit*(1-exp(-z_abc)))/z_abc*total_biomass_last)</code></pre>
 <pre><code>## [1] 633.6269</code></pre>
-<pre class="r"><code># target (2021)
+<pre class="r"><code># target (2022)
 (re_abc_target_last = (f_target*(1-exp(-z_abc)))/z_abc*total_biomass_last)</code></pre>
 <pre><code>## [1] 506.9015</code></pre>
 <pre class="r"><code># 漁獲量とFは要約にある</code></pre>
 </div>
 <div id="行目-1" class="section level4">
-<h4>2022（5行目）</h4>
-<pre class="r"><code># 資源量 (2022)
+<h4>2023（5行目）</h4>
+<pre class="r"><code># 資源量 (2023)
 (total_biomass_this = sum(abund_abc$biomass_est))</code></pre>
 <pre><code>## [1] 9976.659</code></pre>
-<pre class="r"><code># limit (2022)
+<pre class="r"><code># limit (2023)
 (re_abc_limit = (f_limit*(1-exp(-z_abc)))/z_abc*total_biomass_this)</code></pre>
 <pre><code>## [1] 528.7873</code></pre>
-<pre class="r"><code># target (2022)
+<pre class="r"><code># target (2023)
 (re_abc_target = (f_target*(1-exp(-z_abc)))/z_abc*total_biomass_this)</code></pre>
 <pre><code>## [1] 423.0298</code></pre>
 </div>

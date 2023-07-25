@@ -1648,7 +1648,9 @@ w = g+p+l+lab+f+theme_bw(base_family = "HiraKakuPro-W3")+ theme(legend.position 
 
 ```{r figA3-1, echo=F, warning=F, message=F, results=F, include=F}
 lonlat = read.xlsx(paste0(dir, "操業記録データ2022.xlsx"))
-lonlat = lonlat[, c(2,3,4,9:12)]
+colnames(lonlat)
+# lonlat = lonlat[, c(2,3,4,9:12)] # 年によってずれる
+lonlat = lonlat %>% select("STATIONコード", "水深", "網次", "巻上開始時緯度", "巻上開始時緯度分", "巻上開始時経度", "巻上開始時経度分")
 colnames(lonlat)
 colnames(lonlat) = c("station_code", "depth", "ami", "lat1", "lat2", "lon1", "lon2")
 summary(lonlat)
@@ -1701,7 +1703,7 @@ unique(number_at_depth$depth)
 number_at_depth$depth2 = factor(number_at_depth$depth, levels = c("150", "250", "350", "450", "550", "650", "750", "900"))
 g = ggplot(number_at_depth, aes(x = depth2, y = total/1000))
 b = geom_bar(stat = "identity", width = 1, colour = "grey50")
-lab = labs(x = "水深（m）", y = "資源密度", title = "(B)")
+lab = labs(x = "水深（m）", y = "分布密度（千尾）", title = "(B)")
 f = facet_wrap(~ station_code, ncol = 2)
 th = theme(panel.grid.major = element_blank(),
            panel.grid.minor = element_blank(),

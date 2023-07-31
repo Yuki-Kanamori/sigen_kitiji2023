@@ -1671,13 +1671,13 @@ summary(trawl_length3)
 ### map
 tohoku <- data.frame(read.csv(paste0(dir, "marmap_coord.csv"), fileEncoding = fileEncoding))
 colnames(tohoku) <- c("long","lat","depth")
-check = tohoku[tohoku$depth<0 & tohoku$depth>=-1300,]
+check = tohoku[tohoku$depth<0 & tohoku$depth>=-2000,]
 summary(check)
 
 japan <- map_data("japan")
 japan2 <- japan
 japan2$long <- japan$long-0.01
-g <- ggplot(subset(tohoku[tohoku$depth<0 & tohoku$depth>=-1300,]),aes(long, lat))
+g <- ggplot(subset(tohoku[tohoku$depth<0 & tohoku$depth>=-2000,]),aes(long, lat))
 th = theme(panel.grid.major = element_blank(),
            panel.grid.minor = element_blank(),
            axis.text.x = element_text(size = rel(1.5), colour = "black"),
@@ -1688,7 +1688,7 @@ th = theme(panel.grid.major = element_blank(),
            plot.title = element_text(size = rel(1.5)),
            legend.title = element_text(size = rel(1.5)),
            legend.text = element_text(size = rel(1.5)))
-fig_a31a = g + geom_polygon(data = japan2, group = japan$group, fill= "gray50", colour= "gray50")  + coord_map(xlim = c(140.5, 143), ylim = c(36, 42)) + stat_contour(aes(z=depth),binwidth=200,colour="black")+theme_bw(base_family = "HiraKakuPro-W3")+th+geom_point(data = trawl_length3, aes(x = lon, y = lat, shape = station_code), size = 3)+scale_shape_manual(values = c(15, 4, 17, 8, 18, 16, 1, 2))+labs(title = "(A)", x = "経度", y = "緯度", shape = "調査ライン")+scale_x_continuous(breaks=seq(140.5, 143, by = 1), expand = c(0, 0.5))
+fig_a31a = g + geom_polygon(data = japan2, group = japan$group, fill= "gray50", colour= "gray50")  + coord_map(xlim = c(140.5, 142.7), ylim = c(36, 42)) + stat_contour(aes(z=depth),binwidth=200,colour="black")+theme_bw(base_family = "HiraKakuPro-W3")+th+geom_point(data = trawl_length3, aes(x = lon, y = lat, shape = station_code), size = 3)+scale_shape_manual(values = c(15, 4, 17, 8, 18, 16, 1, 2))+labs(title = "(A)", x = "経度", y = "緯度", shape = "調査ライン")+scale_x_continuous(breaks=seq(140.5, 143, by = 1), expand = c(0, 0.5))
 
 
 trawl_length = read.xlsx(paste0(dir, "q_魚種別体長別資源量2022.xlsx")) %>% filter(和名 == "キチジ")
